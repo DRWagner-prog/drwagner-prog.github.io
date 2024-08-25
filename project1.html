@@ -1,0 +1,238 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Portfolio</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="icon" href="WebsiteFavicon.png">
+</head>
+<body>
+
+    <nav>
+        <div class="nameplate">David R. Wagner</div>
+        <div class="buttonplate">
+            <a href="index.html"><div class="topbutton">Home</div></a>
+            <a href="portfolio.html"><div class="topbutton">Portfolio</div></a>
+            <a href="resume.html"><div class="topbutton">Resume</div></a>
+            <a href="contact.html"><div class="contactbutton">Contact</div></a>
+        </div>
+    </nav>
+
+    <div class="articletitle">The Application of the&nbsp;<i>L</i><sub>1</sub>&nbsp;Norm to Lasso Regression</div>
+
+    <div class="projecttierwhole">
+        Least Absolute Shrinkage and Selection Operator regression (<i>lasso regression</i>) is a regularized linear model that restricts the coefficients (or weights) of a linear model.
+        It does this by adding the <i>L</i><sub>1</sub> norm (or 1-norm) of the weight vector to the cost function<sup>2</sup>. For a linear model with weight vector <b>&#952</b> = (&#952<sub>1</sub>, &#952<sub>2</sub>, . . . &#952<sub>n</sub>)<sup>T</sup>, the cost function J(<b>&#952</b>) takes the form
+    </div>
+
+    <!-- INSERT FIRST EQUATION HERE -->
+    <div class="projecttierwhole" id="equation1"><img src="Project1Eq1.png" alt="" height="40"></div>
+
+    <div class="projecttierwhole">
+        where MSE represents the mean squared error of the model and &#955 is a constant hyperparameter to scale the regularization (discussed more later)<sup>2</sup>.
+    </div>
+
+    <div class="projecttierwhole">
+        Lasso regression has multiple uses in machine learning. One use is related to the problem of overfitting in linear models. Overfitting is the phenomenon by which an overly complex model is too sensitive with respect to the data used to train it and, as a result, does not generalize well to new data.
+        By constraining the values of the weights, lasso regression decreases the model's sensitivity to the variation in the training data, making overfitting more difficult and generalization to new data easier<sup>2</sup>.
+    </div>
+
+    <div class="projecttierwhole">
+        Lasso regression is also useful at performing <i>feature selection</i><sup>5</sup>.
+        Feature selection is the process of finding and eliminating the features (independent variables) in a given dataset that are not useful predictors of the response variable's behavior<sup>2</sup>.
+        As an example, consider a model predicting wave height using wind speed, wind direction, tide, and inflation index. Feature selection would likely find that inflation index is not a very good predictor of wave height and would eliminate it from the model.
+        Lasso regression automatically performs feature selection as it is fit to the data.
+        That is, the optimal fit using lasso regression can be a <i>sparse model</i> where the weights associated with features deemed unimportant can be decreased to exactly zero<sup>2</sup>.
+    </div>
+
+    <div class="projecttierwhole">
+        While reducing the probability of overfitting is helpful, it is important to note that other regularized linear models also assist with reducing overfitting.
+        However, lasso regression's ability to perform automatic feature selection is rather unique.
+        Therefore, lasso regression is primarily important due to its unique ability to perform feature selection<sup>2</sup>.
+    </div>
+
+    <div class="projecttierwhole">
+        This ability becomes especially useful in fields where high-dimensional datasets are common<sup>3</sup>.
+        That is, where the number of observations in a dataset is significantly less than the number of features (predictors).
+        In bioinformatics, it is likely that, due to cost and time constraints, the number of organisms that have been sequences is less than the number of genes whose expression data was recorded during each sequencing.
+        For example, information on the expression of 1000 genes may have been collected from only 20 mice.
+        Using its feature selection ability, lasso regression can eliminate the features that are not important and reduce the dimensionality of the dataset<sup>8</sup>.
+    </div>
+
+    <div class="projecttierwhole">
+        Now that lasso regression and some of its applications have been introduced, the aspects of matrix theory that it relies on to both minimize overfitting and perform feature selection will be explained.
+        At the heart of lasso regression lies its defining feature: the <i>L</i><sub>1</sub> norm.
+        To fully appreciate lasso regression, the relation of the <i>L</i><sub>1</sub> norm to lasso regression must be understood.
+    </div>
+
+    <div class="projecttierwhole">
+        As was stated in the introduction, lasso regression adds a constant multiple of the <i>L</i><sub>1</sub> norm of the weight vector to the cost function:
+        J(<b>&#952</b>)=MSE(<b>&#952</b>)+&#955||<b>&#952</b>||<sub>1</sub>.
+        Before understanding how this minimizes overfitting and promotes sparse solutions, the interpretation of the <i>L</i><sub>1</sub> norm of the weight vector and the effect that it has on the cost function must be explained.
+        Consider the intuitive interpretation of a vector norm as its "lenght"<sup>7</sup>">.
+        Due to the definition of the <i>L</i><sub>1</sub> norm:
+    </div>
+
+    <!-- INSERT SECOND EQUATION HERE -->
+    <div class="projecttierwhole" id="equation2"><img src="Project1Eq2.png" alt="" height="90"></div>
+
+    <div class="projecttierwhole">
+        linear models having weights of higher magnitude (that is, large absolute values), will have "longer" weight vectors than linear models with weights of lower magnitude.
+        Since the optimal weights &#952<sub>1</sub>, &#952<sub>2</sub>, . . . &#952<sub>n</sub> are those that minimize J(<b>&#952</b>), the must minimize MSE(<b>&#952</b>) + &#955||<b>&#952</b>||<sub>1</sub>.
+        Thus, a balance must be struck between minimizing the model's mean squared error and the magnitudes of the model's weights.
+        That is, we wish to minimize <i>both</i> the mean squared error and the length of the weight vector as much as possible.
+        The relative importance of minimizing ||<b>&#952</b>||<sub>1</sub> is determined by the value of the hyperparameter &#955.
+        If &#955 = 0, only the mean squared error is considered and we find a solution identical to that provided by least squares regression.
+        As &#955 is increased, the minimization of ||<b>&#952</b>||<sub>1</sub> becomes more important (even at the cost of increasing the mean squared error).
+        Setting &#955 to an appropriate value is done on a case-by-case basis and will be demonstrated in a practical examples below using Python.
+    </div>
+
+    <div class="projecttierwhole">
+        To understand how the <i>L</i><sub>1</sub> norm in lasso regression minimizes overfitting, the concepts of <i>bias</i> and <i>variance</i> must be explained.
+        Bias refers to the inherent difference between the model and reality.
+        Variance is the sensitivity of the model to the training data used to generate it.
+        By adding the <i>L</i><sub>1</sub> norm to the cost function, we artificially restrict the linear model's weights and thus increase the model's bias.
+        This simultaneously decreases the model's variance.
+        That is, it makes the model less sensitive to the training data.
+        Since the model is less sensitive to the training data, it is less likely to overfit<sup>4</sup>.
+    </div>
+
+    <div class="projecttierwhole">
+        To see this concept in action, consider a trivially small set of data with only one independent variable and two points: (x<sub>1</sub>, y<sub>1</sub>) = (1, 2) and (x<sub>2</sub>, y<sub>2</sub>) = (2, 4).
+        By inspection, it is obvious that the best linear model is y = 2x (&#952<sub>0</sub> = 0, &#952<sub>1</sub> = 1). The best lasso mode (found using software), is:
+    </div>
+
+    <!-- INSERT THIRD EQUATION HERE -->
+    <div class="projecttierwhole" id="equation3"><img src="Project1Eq3.png" alt="" height="40"></div>
+
+    <div class="projecttierwhole">
+        If the data are "tweaked", so that (x<sub>2</sub>, y<sub>2</sub>) = (2, 3), the linear model obviously changes to y = 1 + x. However, the lasso model becomes:
+    </div>
+
+    <!-- INSERT FOURTH EQUATION HERE -->
+    <div class="projecttierwhole" id="equation4"><img src="Project1Eq4.png" alt="" height="40"></div>
+
+    <div class="projecttierwhole">
+        Thus, the slope of the linear model was halved while the slope of the lasso model was cut to about 0.85 of its original value.
+        The intercept of the linear model also changes more than the intercept of the lasso model.
+        This example highlights the "insulative" effects of lasso regression on the model's weights with respect to variance in the training data (making overfitting more difficult).
+    </div>
+
+    <div class="projecttierwhole">
+        Understanding why lasso regression has a propensity towards producing sparse models is less intuitive and is best explained by visually inspecting a comparison with <i>ridge regression</i> (which uses the <i>L</i><sub>2</sub> norm of the weight vector).
+        In the following explanation, refer to Figure 1.
+    </div>
+
+    <div class="projecttiersplit">
+        <div class="splitleft">
+            Consider a model with two features corresponding to the weights &#952<sub>1</sub> and &#952<sub>2</sub>.
+            Suppose the minimum for the unrestricted cost function occurs at point <i>A</i>.
+            Further, consider how the <i>L</i><sub>1</sub> and <i>L</i><sub>2</sub> norms restrict our selection of the weights &#952<sub>1</sub> and &#952<sub>2</sub>.
+            For a given value of the <i>L</i><sub>1</sub> norm, our weights must fall within the blue "diamond" region.
+            Similarly, for a given value of the <i>L</i><sub>2</sub> norm, the weights must fall within the orange circular region.
+            Now, observe where the gray elliptical contours of the unrestricted cost function (around point <i>A</i>) first intersect these bounded regions.
+            In the case of the <i>L</i><sub>1</sub> norm, the first intersection with the contour occurs at point 1 on a vertex of the bounded region (which is also located on the &#952<sub>1</sub> axis).
+            The circular region corresponding to the <i>L</i><sub>2</sub> first intersects a contour (orange ellipse) at point 2, which is not on either axis.
+            Thus, the lasso regression solution, represented by point 1 is sparse (since &#952<sub>2</sub> = 0) while the ridge regression solution, point 2, is not sparse (&#952<sub>1</sub>, &#952<sub>1</sub> &#8800 0).
+            Informally, lasso regression tends to produce sparse solutions due to the shape of the <i>L</i><sub>1</sub> norm on which is relies.
+            Since the convex vertices of the <i>L</i><sub>1</sub> norm extend the furthest from the origin (not as measured by the <i>L</i><sub>1</sub> norm, but in a conventional sense), it is more likely that the contours emanating from the unrestricted minimum will first encounter the <i>L</i><sub>1</sub> norm restricted region at a vertex.
+            As these vertices are positioned on the axes, intersection occurring at the vertices are also sparse.
+            The same cannot be said about the restricted region for the <i>L</i><sub>2</sub> norm as it is circular.
+            Thus, due to the unique shape of the <i>L</i><sub>1</sub> norm, it is more likely that optimal solutions using lasso regression will be sparse (as compared to unrestricted and ridge regression).
+            Of course, lasso regression solutions will not always be sparse nore are other types of regression unable to produce sparse solutions.
+            However, in general, lasso regression is more likely to return sparse solutions<sup>6</sup>.
+        </div>
+        <div class="splitright">
+            <div class="splitimage">
+                <img src="Project1Figure1.png" width="100%" alt="">
+            </div>
+            <b>Figure 1</b>: Comparison of solutions with respect to the <i>L</i><sub>1</sub> and <i>L</i><sub>1</sub> norms. Created by author, inspired by<sup>6</sup>.
+        </div>
+    </div>
+
+    <div class="projecttierwhole">
+        Having spend a significant amount of time discussing how the behavior of the <i>L</i><sub>1</sub> norm reduces overfitting and promotes sparse solutions in lasso regression, we conclude with a practical example.
+        Python (with the Scikit-Learn machine learning library) will be used to apply lasso regression to model the quality of red wine as a function of certain predictors.
+        The dataset in question records measures of fixed acidity, volatile acidity, citric acid content, residual sugar level, chloride level, free sulfur dioxide level, density, pH, sulphate level, and alcohol content for 1599 samples of red wine from Portugal<sup>1</sup>.
+        To save space, the matrix of predictors and vector of responses are already assigned to the variables <i>X</i> and <i>y</i> respectively (the process of loading the data is omitted).
+        Before applying lasso regression, the data are separated into training and testing sets.
+        The training set is used to determine the best weights, and the testing set is used to evaluate the optimized model.
+        Typically, as is done here, this is an 80/20 split.
+        The data are also scaled to ensure that all features are treated equally (no matter what range of values each predictor has).
+    </div>
+
+    <!-- FIRST CODE BLOCK -->
+    <div class="projecttierwhole" id="codeblock"><img src="Project1Code1.png" alt=""></div>
+
+    <div class="projecttierwhole">
+        As was mentioned earlier, the hyperparameter &#955 is selected on a case-by-case basis. Here Scikit-Learn's "GridSearchCV" feature is used to find the best value given a specified set.
+        Note that Scikit-Learn refers to this hyperparameter as "alpha" instead of &#955.
+    </div>
+
+    <!-- SECOND CODE BLOCK -->
+    <div class="projecttierwhole" id="codeblock"><img src="Project1Code2.png" alt=""></div>
+
+    <div class="projecttierwhole">
+        Finally, we extract the lasso regression model with the best hyperparameter and use it to make predictions with the (previously untouched) testing set.
+    </div>
+
+    <!-- THIRD CODE BLOCK -->
+    <div class="projecttierwhole" id="codeblock"><img src="Project1Code3.png" alt=""></div>
+
+    <div class="projecttiersplit">
+        <div class="splitleft">
+            This final model has an r<sup>2</sup> value of 0.38. Although not a desirable score, this is an improvement over the best-performing linear regression model with r<sup>2</sup> = 0.36. Also, the lasso regression model did successfully produce a sparse model. The optimal weights for the lasso and least squares models are shown in Figure 2.
+            This  indicates that the levels of citric acid, free sulfur dioxide, and the density are likely not important for the prediction of the wine quality (an insight that might have been missed if only least squares regression was used).
+            <br>
+            <br>
+            Having completed this example, the practical utility of the <i>L</i><sub>1</sub> norm in lasso regression for both minimizing overfitting and performing feature selection is clear and serves as one of the many instances of the applicability of linear algebra.
+            <br>
+            <br>
+            <b>References</b>
+            <br>
+            <br>
+            <table>
+                <tr valign="top">
+                    <td>[1]</td>
+                    <td>P. Cortez et al. "Modeling wine preferences by data mining from physico-chemical properties". In: <i>Decis. Support Syst.</i> 47 (2009), pp. 547-553. URL: <a href="https://api.semanticscholar.org/CorpusID:2996254">https://api.semanticscholar.org/CorpusID:2996254</a>.</td>
+                </tr>
+                <tr valign="top">
+                    <td>[2]</td>
+                    <td>Aurelien Geron. "Hands-on Machine Learning with Scikit-Learn, Keras & TensorFlow". In: O'Reilly, 2019. Chap 4.</td>
+                </tr>
+                <tr valign="top">
+                    <td>[3]</td>
+                    <td>IBM. <i>What is Lasso Regression?</i> URL: <a href="https://www.ibm.com/topics/lasso-regression">https://www.ibm.com/topics/lasso-regression</a>. (accessed: 04.22.2024).</td>
+                </tr>
+                <tr valign="top">
+                    <td>[4]</td>
+                    <td>Gareth James et al. <i>An Introduction to Statistical Learning</i>. Springer, 2023, p. 168. ISBN: 9781071614174.</td>
+                </tr>
+                <tr valign="top">
+                    <td>[5]</td>
+                    <td>Cristina Mulas Lopez. <i>L1 Norm vs L2 Norm</i>. URL: <a href="https://www.cristinamulas.com/blog/l1-norm-vs-l2-norm">https://www.cristinamulas.com/blog/l1-norm-vs-l2-norm</a>. (accessed: 04.22.2024).</td>
+                </tr>
+                <tr valign="top">
+                    <td>[6]</td>
+                    <td>Satishkumar Moparthi. <i>Why L1 Norm Creates Sparsity Compared with L2 Norm</i>. URL: <a href="https://satishkumarmoparthi.medium.com/why-l1-norm-creates-sparsity-compared-with-l2-norm-3c6fa9c607f4">https://satishkumarmoparthi.medium.com/why-l1-norm-creates-sparsity-compared-with-l2-norm-3c6fa9c607f4</a>. (accessed: 04.22.2024).</td>
+                </tr>
+                <tr valign="top">
+                    <td>[7]</td>
+                    <td>M. Thamban Nair and Arindama Singh. <i>Linear Algebra</i>. Springer Singapore, 2018. p. 168. ISBN: 9789811309267.</td>
+                </tr>
+                <tr valign="top">
+                    <td>[8]</td>
+                    <td>Yuichi Okinaga et al. "Relationship between gene regulation network structure and prediction accuracy in high dimensional regression". In: <i>Scientific reports</i> 11.1 (2021), p. 11483.</td>
+                </tr>
+            </table>
+        </div>
+        <div class="splitright">
+            <div class="splitimage">
+                <img src="Project1Table1.png" width="100%" alt="">
+            </div>
+        </div>
+    </div>
+    
+</body>
+</html>
