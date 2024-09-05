@@ -52,7 +52,7 @@
         <div class="splitright">
             <!-- INSERT IMAGE HERE -->
             <div class="splitimage">
-                <img src="Project3Figure1.jpg" width="100%" alt="" style="border-radius: 10%;">
+                <img src="Project3Figure1.jpg" width="90%" alt="" style="border-radius: 10%;">
             </div>
             <b>Figure 1</b>: Carnegie Energy CETO buoy system.
         </div>
@@ -103,7 +103,7 @@
         <div class="splitleft">
             <!-- INSERT IMAGE HERE -->
             <div class="splitimage">
-                <img src="Project3Figure2.png" width="100%" alt="">
+                <img src="Project3Figure2.png" width="90%" alt="">
             </div>
             <b>Figure 2</b>: Illustration of "learning" of buoy ordering. Changing the order of buoys changes the power output (even though it shouldn't).
         </div>
@@ -135,7 +135,7 @@
         <div class="splitright">
             <!-- INSERT IMAGE HERE -->
             <div class="splitimage">
-                <img src="Project3Figure3.png" width="100%" alt="">
+                <img src="Project3Figure3.png" width="90%" alt="">
             </div>
             <b>Figure 3</b>: Splitting data to focus on power output of individual buoys instead of total farm power output.
         </div>
@@ -152,11 +152,121 @@
 
     <div class="projecttierwhole">
         Building a model with the current data is possible, but would likely not be sufficient.
-        That is, the coordinates of the buoys alone are not enough to accurately and reliably predict the its power output.
+        That is, the coordinates of the buoys alone are not enough to accurately and reliably predict the power output.
         Recalling the earlier discussion, it was revealed that the hydrodynamic interactions between the buoys were the main complicating factor in the design and optimization of wave farms.
         So, it would make sense intuitively if the hydrodynamic effects of neighboring buoys were in some way responsible for the variance in the data not explained by the coordinates alone.
+        Thus, it would likely be helpful to use feature engineering to create new features that could account for the interactions that coordinates alone do not.
         There are multiple ways the effects of neighboring buoys could be incorporated into a model.
         However, all of these methods essentially seek to find a way to give buoys scores that quantify how many neighbors it has, where those neighbors are in relation to it (left, right, up, down), and how far away those neighbors are.
+    </div>
+
+    <div class="projecttiersplit">
+        <div class="splitleft">
+            <div class="splitimage" style="text-align: center;">
+                <!-- INSERT IMAGE HERE -->
+                <img src="Project3Figure4a.png" width="90%" alt="">
+            </div>
+            <b>Figure 4a</b>: Splitting data to focus on power output of individual buoys instead of total farm power output.
+            <div class="splitimage">
+                <!-- INSERT IMAGE HERE -->
+                <img src="Project3Figure4b.png" width="90%" alt="">
+            </div>
+            <b>Figure 4b</b>: Splitting data to focus on power output of individual buoys instead of total farm power output.
+            <div class="splitimage">
+                <!-- INSERT IMAGE HERE -->
+                <img src="Project3Figure4c.png" width="90%" alt="">
+            </div>
+            <b>Figure 4c</b>: Splitting data to focus on power output of individual buoys instead of total farm power output.
+        </div>
+        <div class="splitright">
+            Intuitively, it would make sense to try, for each buoy, to evaluate how many buoys are "in between" the buoy of interest and the directions from which the waves are arriving.
+            So, for example, if the waves are arriving from the northeast, then for each buoy, we could create a new feature measuring how many other buoys are to its northeast.
+            Mathematically, this would be quantified as the sum of buoys within a wedge northeast of the buoy of interest.
+            This concept is visualized in Figure 4a where the waves are arriving from the top right and each buoy considers a wedge aiming at that direction.
+            Unfortunately, this method has some shortcomings.
+            The most serious is that it cannot generalize to situations where waves are coming from multiple opposing directions and different magnitudes are associated with each direaction.
+            This happens quite often in real life and was accurately simulated by the original researchers for both the Perth and Sydney locations.
+            <br>
+            <br>
+            Another option would be to construct some type of "kernel" that accounts for both the directionality and distance of the neighboring buoys.
+            This method is visualized in Figure 4b.
+            Some of the same problems arise here as before, though, where it would become very difficult to adapt to general cases where many different wave amplitudes could be arriving from many different directions.
+            <br>
+            <br>
+            Finally, to keep things simple, instead of trying to specify the directionality of the waves, features could be made to separately account for each direction.
+            This essentially ammounts to separating the area around each buoy into a fixed number of sectors (see the visualization in Figure 4c).
+            Neighbors are tallied for each of these sectors to provide a sense of directionality without having to adapt to every possible wave scenario.
+            If waves are arriving from multiple directions, then the sectors corresponding to those directions should be good predictors of the generating capacity while sectors corresponding to directions where waves do not come from will have mild to no effect on the generating capacity of the buoy.
+            <br>
+            <br>
+            To account for a sense of distance between the buoys, another set of features can be developed to assign a score to each of these sectors that takes the distances to neighboring buoys into account.
+            However, this method cannot simply use the distances due to how distance is encoded.
+            If a buoy has no neighbors in some sector, that sector must encode the distance as zero since infinity is not supported by machine learning methods.
+            So, the awkward case would arise with high predictions for power capacity with distances of zero, lower predictions for power with small distances scores, and then higher predictions again as the distances increase.
+            Thus, it is likely that the power generating ability of a buoy would not be a monotonic function of the sector-wise distance.
+            To avoid this problem, a kind of Gaussian transformation of the distance (where the distance score is "e" raised to the negative of the distance) can be used.
+            This means that buoys with no neighbors have a distance score that is asymptotically approaches zero, buoys with far away neighbors have a very low score, and buoys with near neighbors have higher scores approaching some constant.
+            This way, the power capacity is monotonic with respect to the distance score (hopefully making the data easier to fit).
+        </div>
+    </div>
+
+    <div class="projecttierwhole">
+        These ideas developed above were used to create three types of "scores" to quantify the environment surrounding each buoy.
+        The first of these is the neighbor sector count.
+        For each buoy, it just quantifies how many neighboring buoys are found in each surrounding "sector".
+        Since this is repeated for each buoy, we essentially add as many features as sectors.
+        The second score is the sector-wise average transformed distance.
+        It records the average of the distance score (discussed earlier) for each of the sectors surrounding each buoy.
+        It also adds as many features as there are sectors.
+        Finally, the third score is the sector-wise minimum transformed distance.
+        As the name suggests, it records the minimum of the distance score for each sector around each buoy.
+        Again, it adds as many features as there are sectors.
+        The goal of keeping the average and minimum distance scores separate was to hopefully allow the differentiation of instances where a buoy has only one neighbor that is very close or a large number of neighbors that are not too close.
+    </div>
+
+    <div class="projecttiersplit">
+        <div class="splitleft">
+            The effectiveness of these three different scores can be evaluated by training and validating a set of multivariate linear regression models.
+            The first of these models only uses the XY-coordinates of the buoys (that is, no feature engineering).
+            The second model uses the buoy coordinates as well as the sector neighbor counts as predictors.
+            The third model uses the coordinates, the sector neighbor counts, and the sector-wise distance average scores.
+            Finally, the last model uses the coordinates along with all three of the scores that were developed (neighbor counts, average distance, and minimum distance).
+            In these runs, the number of sectors that the space surrounding each buoy is cut into was varied.
+            Here, models with 12, 16, 20, and 24 sectors are evaluated.
+            <br>
+            <br>
+            In Figure 5, the performance of the four types of farms across all tested numbers of sectors is displayed.
+            The dashed lines represent the the performance of the model that only used the buoy coordinates (that's why it does not vary with the number of sectors).
+            The green lines represent the performance of the linear regression models using the coordinates with the sector-wise neighbor count information.
+            When the linear regression model is fit with the addition of the sector-wise distance average scores, it is clear that the mean absolute error drops significantly on the validation set (as represented by the orange lines)
+            Similarly, fitting the linear regression models to all available data (including the sector-wise distance minimum scores) decreases the error on the validation set further (as can be seen by the pink lines).
+            Comparing the quality of the linear models fit to all the subsets of data, it becomes obvious that that (in all cases) the best performing model is the one that uses the coordinates, the sector counts, and the sector-wise average and minimum distances.
+            Thus, it appears that all three of the scores that were developed earlier benefit the performance of the linear regression models.
+            As a result, future models will only be evaluated when utilizing all of the engineered features (no subsets).
+            <br>
+            <br>
+            At this point, a model more flexible than linear regression was sought in an attempt to better fit the data.
+            While experimenting with the data, it was observed that the buoys usually fell into repeating grid-like patterns.
+            This is likely a result of the optimization algorithm that the original authors used to develop these datasets.
+            Since tree-based regressors are capable of "parsing up" the dataspace into grids, this appeared to naturally suggest the application of a random forest regressor.
+        </div>
+        <div class="splitright">
+            <!-- INSERT IMAGES HERE -->
+            <div class="splitimage">
+                <img src="Project3Figure5a.png" width="100%" alt="">
+            </div>
+            <div class="splitimage">
+                <img src="Project3Figure5b.png" width="100%" alt="">
+            </div>
+        </div>
+    </div>
+
+    <div class="projecttierwhole">
+        At this point, a model more flexible than linear regression was sought in an attempt to better fit the data.
+        While experimenting with the data, it was observed that the buoys usually fell into repeating grid-like patterns.
+        This is likely a result of the optimization algorithm that the original authors used to develop these datasets.
+        Since tree-based regressors are capable of "parsing up" the dataspace into grids, this appeared to naturally suggest the application of a random forest regressor.
+        
     </div>
     
 </body>

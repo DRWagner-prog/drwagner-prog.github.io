@@ -143,7 +143,7 @@ nav{
     height: 100vh;
 }
 
-.pdf{
+#tier4 object{
     height: 100%;
 }
 
@@ -357,7 +357,14 @@ body::-webkit-scrollbar{
     padding-left: 20px;
 }
 
+.splitimage{
+    text-align: center;
+}
 
+.splitleft table{
+    font-size: 14px;
+    text-align: left;
+}
 
 
 
